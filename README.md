@@ -12,6 +12,8 @@ Library for Atom, JSON and RSS feeds creation and parsing.
 * Simple API.
 * Clean and tested code.
 * Dependency-free.
+* Full support for Atom, RSS 2.0, and JSON Feed Version 1 spec elements
+
 
 ## Install
 

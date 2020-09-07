@@ -78,3 +78,62 @@ type JSONAttachment struct {
 func (f *JSONFeed) MarshalJSON() ([]byte, error) {
 	return json.Marshal(f)
 }
+
+// JSON is used to convert a generic Feed to a JSONFeed.
+type JSON struct {
+	*Feed
+}
+
+func (f *JSON) String() string {
+	b, _ := f.JSONFeed().MarshalJSON()
+	return string(b)
+}
+
+// JSONFeed creates a new JSONFeed with a generic Feed struct's data.
+func (f *JSON) JSONFeed() *JSONFeed {
+	feed := &JSONFeed{
+		Version:     jsonFeedVersion,
+		Title:       f.Title,
+		Description: f.Description,
+	}
+
+	if f.Link != nil {
+		feed.HomePageURL = f.Link.Href
+	}
+	if f.Author != nil {
+		feed.Author = &JSONAuthor{Name: f.Author.Name}
+	}
+	for _, e := range f.Items {
+		feed.Items = append(feed.Items, newJSONItem(e))
+	}
+	return feed
+}
+
+func newJSONItem(i *Item) *JSONItem {
+	item := &JSONItem{
+		ID:          i.ID,
+		Title:       i.Title,
+		Summary:     i.Description,
+		ContentHTML: i.Content,
+	}
+
+	if i.Link != nil {
+		item.URL = i.Link.Href
+	}
+	if i.Source != nil {
+		item.ExternalURL = i.Source.Href
+	}
+	if i.Author != nil {
+		item.Author = &JSONAuthor{Name: i.Author.Name}
+	}
+	if !i.Created.IsZero() {
+		item.DatePublished = &i.Created
+	}
+	if !i.Updated.IsZero() {
+		item.DateModified = &i.Updated
+	}
+	// if i.Enclosure != nil && strings.HasPrefix(i.Enclosure.Type, "image/") {
+	// 	item.Image = i.Enclosure.URL
+	// }
+	return item
+}
